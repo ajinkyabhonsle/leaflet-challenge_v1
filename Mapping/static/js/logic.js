@@ -14,7 +14,7 @@ let satelliteStreets = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/sate
     accessToken: API_KEY
 })
 
-// Create a 2nd  tile layer
+// Create a 3rd  tile layer
 let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token={accessToken}',{
     attribution: 'Map data',
     maxZoom: 18,
@@ -22,7 +22,7 @@ let light = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles
 })
 
 let map = L.map('mapid',{
-    center: [40.7,-94.5],
+    center: [40.73,-94.0059],
     zoom: 3,
     layers: [streets]
 })
@@ -46,6 +46,7 @@ let overlays = {
 L.control.layers(baseMap,overlays).addTo(map)
 
 d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geojson").then(function(data){
+
     function styleInfo(feature){
                 return {
                     opacity: 1,
@@ -82,12 +83,12 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
                     return 1
                 }
                 return magnitude * 4;
-            }
-            L.geojson(data, {
+    }
+            L.geoJson(data, {
                 pointToLayer: function(feature,latlng){
                     console.log(data);
                     return L.circleMarker(latlng)
-                },
+                },  
                 style: styleInfo,
                 onEachFeature: function(feature, layer){
                     layer.bindPopup("Magnitude: "+ feature.properties.mag + "<br>Location: " + feature.properties.place);
@@ -98,40 +99,39 @@ d3.json("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_week.geoj
 
 })
 
+    let legend = L.control({
+        position: "bottomright"
+    })
 
-//     let legend = L.control({
-//         position: "bottomright"
-//     })
-
-//     legend.onAdd = function(){
-//         let div = L.DomUtil.create('div','info legend');
-//         const magnitudes = [0,1,2,3,4,5]
-//         const colors = [
-//             "#98eee0",
-//             "#d4ee00",
-//             "#eecc00",
-//             "#ee9c00",
-//             "#ea822c",
-//             "#ea2c2c";
+    legend.onAdd = function(){
+        let div = L.DomUtil.create('div','info legend');
+        const magnitudes = [0,1,2,3,4,5]
+        const colors = [
+            "#98eee0",
+            "#d4ee00",
+            "#eecc00",
+            "#ee9c00",
+            "#ea822c",
+            "#ea2c2c"
             
-//         ]
+        ]
 
-//         for(var i = 0; i < magnitudes.length; i++){
-//             console.log(colors[i])
-//             div.innerHTML += '<i style='background:${colors[i]}'>/</i>' + magnitudes[i] + (magnitudes[i + 1] ? "&ndash;" + magnitudes[i+1] + "<br>": "+")
-//         }
-//         return div;
-//     }
+        for(var i = 0; i < magnitudes.length; i++){
+            console.log(colors[i])
+            div.innerHTML += `<i style='background:${colors[i]}'></i>` + magnitudes[i] + (magnitudes[i + 1] ? "&ndash;" + magnitudes[i+1] + "<br>": "+")
+        }
+        return div;
+    }
 
-//     legend.addTo(Map)
+    legend.addTo(map)
 
-//     d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json").then(function(plateData){
-//         L.geoJson(plateData,{
-//             color:"#ff6500",
-//             weight: 2
-//         }).addTo(tectonicplates)
+    d3.json("https://raw.githubusercontent.com/fraxen/tectonicplates/master/GeoJSON/PB2002_boundaries.json").then(function(plateData){
+        L.geoJson(plateData,{
+            color:"#ff6500",
+            weight: 2
+        }).addTo(tectonicplates)
 
-//         tectonicplates.addTo(map)
-    // })
+        tectonicplates.addTo(map)
+    })
 
 // })
